@@ -1,0 +1,28 @@
+{
+  "posts": [
+    {
+      "id": 2,
+      "title": "far cry",
+      "description": "FCLorem ipsum, dolor sit amet consectetur adipisicing elit. Quas iusto debitis facilis quisquam consequatur laboriosam voluptatibus rerum.",
+      "image": "https://cdn1.epicgames.com/b4565296c22549e4830c13bc7506642d/offer/TETRA_PREORDER_STANDARD%20EDITION_EPIC_Store_Portrait_1200x1600-1200x1600-ca8b802ff13813c37a44ebf68d0946a2.png"
+    },
+    {
+      "id": 3,
+      "title": "assassins creed",
+      "description": "ASSLorem ipsum, dolor sit amet consectetur adipisicing elit. Quas iusto debitis facilis quisquam consequatur laboriosam voluptatibus rerum.",
+      "image": "https://image.api.playstation.com/vulcan/ap/rnd/202008/1318/8XGEPtD1xoasK0FYkYNcCn1z.png"
+    },
+    {
+      "id": 4,
+      "title": "Grand Theft Auto IV",
+      "description": "The best story game ever!",
+      "image": "https://upload.wikimedia.org/wikipedia/sr/0/09/GTAIV_Logo.jpg"
+    },
+    {
+      "id": 6,
+      "title": "Counter Strike GO",
+      "description": "shooter smoother",
+      "image": "https://upload.wikimedia.org/wikipedia/sr/c/ce/Counter-Strike_Global_Offensive.jpg"
+    }
+  ]
+}

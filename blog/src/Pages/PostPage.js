@@ -30,13 +30,16 @@ const PostPage = ({ post, handleDelete }) => {
             </Typography>
           </Box>
 
-
             <Button 
               variant="outlined" 
               onClick={() => handleDelete(singlePost.id)}
               startIcon={<DeleteIcon />}>
               Delete
             </Button>
+
+            <Link to={`/edit/${post.id}`}>
+              <Button variant="outlined">Edit</Button>
+            </Link>
         </>
       }
 

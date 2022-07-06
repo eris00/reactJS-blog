@@ -6,71 +6,99 @@ import Nav from './Pages/Nav';
 import Home from './Pages/Home';
 import PostPage from './Pages/PostPage';
 import NewPost from './Pages/NewPost';
+import EditPost from './Pages/EditPost';
 import About from './Pages/About';
 import MissingPage from './Pages/MissingPage';
 import Footer from './Pages/Footer';
-
-
-
+import api from './api/posts';
 
 function App() {
 
   const navigate = useNavigate();
   const [search, setSearch] = useState('');
   const [searchRes, setSearchRes] = useState('');
-  const [title, setTitle] = useState('');
-  const [description, setDescription] = useState('');
-  const [image, setImage] = useState('');
-  const [post, setPost] = useState([
-    {
-      id:1,
-      title: 'gta',
-      description: 'GtaLorem ipsum, dolor sit amet consectetur adipisicing elit. Quas iusto debitis facilis quisquam consequatur laboriosam voluptatibus rerum.',
-      image: 'https://media-rockstargames-com.akamaized.net/rockstargames-newsite/img/global/games/fob/1280/V.jpg'
-    },
-    {
-      id:2,
-      title: 'far cry',
-      description: 'FCLorem ipsum, dolor sit amet consectetur adipisicing elit. Quas iusto debitis facilis quisquam consequatur laboriosam voluptatibus rerum.',
-      image: 'https://cdn1.epicgames.com/b4565296c22549e4830c13bc7506642d/offer/TETRA_PREORDER_STANDARD%20EDITION_EPIC_Store_Portrait_1200x1600-1200x1600-ca8b802ff13813c37a44ebf68d0946a2.png'
-    },
-    {
-      id:3,
-      title: 'assassins creed',
-      description: 'ASSLorem ipsum, dolor sit amet consectetur adipisicing elit. Quas iusto debitis facilis quisquam consequatur laboriosam voluptatibus rerum.',
-      image: 'https://image.api.playstation.com/vulcan/ap/rnd/202008/1318/8XGEPtD1xoasK0FYkYNcCn1z.png'
-    }
-  ]);
+  const [post, setPost] = useState([]);
+  const [postTitle, setPostTitle] = useState('');
+  const [postDescription, setPostDescription] = useState('');
+  const [postImage, setPostImage] = useState('');
+  const [editTitle, setEditTitle] = useState('');
+  const [editDescription, setEditDescription] = useState('');
+  const [editImage, setEditImage] = useState('');
 
   useEffect(() => {
+    const fetchPosts = async () => {
+      try {
+        const response = await api.get('/posts');
+        setPost(response.data);
+      } catch (err) {
+        if (err.response) {
+        console.log(err.response.data);
+        console.log(err.response.status);
+        console.log(err.response.headers);
+        } else {
+          console.log(`Error: ${err.message}`);
+        }
+      }
+    }
+    fetchPosts();    
+  }, [])
+  
+
+  useEffect(() => { 
     const filteredResult = post.filter(singlePost => (
-      (singlePost.title).toLowerCase().startsWith(search.toLowerCase()) ||
-      (singlePost.description).toLowerCase().includes(search.toLowerCase())));
-    setSearchRes(filteredResult.reverse());
+      ((singlePost.title).toLowerCase()).includes(search.toLowerCase()) ||
+      ((singlePost.description).toLowerCase()).includes(search.toLowerCase())));
+    setSearchRes(filteredResult.reverse()); 
   }, [search, post]);
 
-  const handleDelete = (id) => {
-    const postArray = post.filter(singlePost => (singlePost.id !== id));
-    setPost(postArray);
-    navigate('/');
+  const handleDelete = async (id) => {
+    try {
+      await api.delete(`/posts/${id}`);
+      const postArray = post.filter(singlePost => (singlePost.id !== id));
+      setPost(postArray);
+      navigate('/');
+    } catch(err) {
+      console.log(`Error: ${err.message}`);
+    }
   }
 
-  const addPost = (title, description, imgLink) => {
+  const handleEdit = async (id) => {
+    const editedPost = {id, title: editTitle, description: editDescription, image: editImage};
+    try {
+      const response = await api.put(`/posts/${id}`, editedPost);
+      setPost(post.map(singlePost => singlePost.id === id ? { ...response.data } : post ));
+      setEditTitle('');
+      setEditDescription('');
+      setEditImage('');
+      navigate('/');
+
+    } catch(err) {
+      console.log(`Error: ${err.message}`);
+    }
+  }
+  
+
+  const addPost = async () => {
     const postId = post.length > 0 ? post[post.length-1].id + 1 : 1;
-    const postTitle = title;
-    const postDesc = description;
-    const postImage = imgLink;
-    const newPost = {id:postId, title:postTitle, description:postDesc, image: postImage};
-    const postLists = [...post, newPost];
-    setPost(postLists);
+    const newPost = {id: postId, title: postTitle, description: postDescription, image: postImage};
+    try {
+      const response = await api.post('/posts', newPost);
+      const postList = [...post, response.data];
+      setPost(postList);
+    } catch(err) {
+      console.log(`Error: ${err.message}`);
+    }
   }
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    addPost(title, description, image);
-    setTitle('');
-    setDescription('');
-    setImage('');
+    addPost();
+    
+    setPostTitle('');
+    setPostDescription('');
+    setPostImage('');
+
+    navigate('/');
   }
 
   return (
@@ -78,17 +106,37 @@ function App() {
       <Header title={'React JS Blog'} />
       <Nav search={search} setSearch={setSearch}/>
       <Routes>
-        <Route index element={<Home post={searchRes} />}/>
+        <Route index element={<Home post={searchRes} />} />
         <Route path='post'>
           <Route index element={<NewPost 
             handleSubmit={handleSubmit}
-            setTitle={setTitle}
-            setDescription={setDescription}
-            setImage={setImage}
+            setPostTitle={setPostTitle}
+            setPostDescription={setPostDescription}
+            setPostImage={setPostImage}
             />
-            }/>
-          <Route path=':id' element={<PostPage post={post} handleDelete={handleDelete} />}/>
+          }/>
+          <Route path=':id' element={<PostPage 
+            post={post} 
+            handleDelete={handleDelete} />}
+          />
+
+          <Route path="edit/:id" element={<EditPost
+            post={post}
+            handleEdit={handleEdit}
+            setEditTitle={setEditTitle}
+            setEditDescription={setEditDescription}
+            setEditImage={setEditImage}
+            editTitle={editTitle}
+            editDescription={editDescription}
+            editImage={editImage}
+            />} 
+          />
+
         </Route>
+
+
+
+
         <Route path='about' element={<About />}/>
         <Route path='*' element={<MissingPage />}/>
       </Routes>
